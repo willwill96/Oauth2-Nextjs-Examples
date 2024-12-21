@@ -10,7 +10,9 @@ In these examples I will be using a locally running [keycloak](https://www.keycl
     - You can sign in with the following credentials: `
 - `vanilla-next-auth` - Example of a repo using next-auth as a library, mostly as documented from the [next-auth docs](https://next-auth.js.org/)
 - `oauth2-proxy` - Example of wrapping nextjs in [oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy)
-- `next-auth-as-a-service` - Example of hosting next-auth endpoints as a dedicated service. Could be useful in a microservice architecture
+- `next-auth-as-a-service` - Example of hosting two nextjs apps behind a [Caddy](https://caddyserver.com/) reverse proxy. One serves the routes necessary for the auth.js implementation. The other serves all other routes. This is most useful in a microservice architecture
+
+
 
 # Running Examples
 

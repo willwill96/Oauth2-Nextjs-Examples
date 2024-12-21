@@ -3,17 +3,45 @@
 }
 
 :3000 {
+    
+    # All auth-related routes should go to the next-auth app
     handle /api/auth/* {
         reverse_proxy http://host.docker.internal:3002
     }
     handle /api/is-authed {
         reverse_proxy http://host.docker.internal:3002
     }
+    handle /api/login {
+        reverse_proxy http://host.docker.internal:3002
+    }
 
+    # Static Assets should not have auth information forwarded
+    handle /_next/* {
+        reverse_proxy http://host.docker.internal:3001
+    }
+
+    # Example of a page that would be auto-redirected to login
+    handle /private-page {
+        forward_auth http://host.docker.internal:3002 {
+            uri /api/is-authed
+            copy_headers X-Auth-Request-Access-Token
+            @error status 401
+			handle_response @error {
+				redir * /api/login?callbackUrl=/private-page
+			}
+        }
+        reverse_proxy http://host.docker.internal:3001
+    }
+
+    # All other routes should have access token available via the X-Auth-Request-Access-Token header
     handle /* {
         forward_auth http://host.docker.internal:3002 {
             uri /api/is-authed
             copy_headers X-Auth-Request-Access-Token
+            @error status 401
+			handle_response @error {
+				reverse_proxy http://host.docker.internal:3001
+			}
         }
         reverse_proxy http://host.docker.internal:3001
     }
