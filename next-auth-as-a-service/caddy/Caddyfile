@@ -1,0 +1,20 @@
+{
+    auto_https off
+}
+
+:3000 {
+    handle /api/auth/* {
+        reverse_proxy http://host.docker.internal:3002
+    }
+    handle /api/is-authed {
+        reverse_proxy http://host.docker.internal:3002
+    }
+
+    handle /* {
+        forward_auth http://host.docker.internal:3002 {
+            uri /api/is-authed
+            copy_headers X-Auth-Request-Access-Token
+        }
+        reverse_proxy http://host.docker.internal:3001
+    }
+}

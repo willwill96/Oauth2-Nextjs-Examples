@@ -6,13 +6,15 @@ interface JwtInterface {
 	exp: number;
 }
 
-declare module "next-auth/jwt" {
+declare module "next-auth" {
 	interface JWT {
 		access_token?: string;
 		refresh_token?: string;
 		id_token?: string;
 	}
 }
+
+
 
 const isJwtExpired = (accessToken: { exp: number }) => {
 	// Buffer expiration by 1 minute
