@@ -27,11 +27,13 @@ The Good:
 - Auth is integrated directly into your app, so you only need to run the one app
 - next-auth makes the authorization code flow easy to implement
 - next-auth allows for a lot of customization
+
 The Bad:
 - Requires you to get your hands dirty with a fair amount of code to customize your instance
 - Access/Refresh/Id Tokens have to be added to your session manually: [Implemented here](./vanilla-next-auth/src/lib/next-auth.ts#L55-L61)
 - Doesn't automatically handle refresh token rotation for you. [Implemented here](./vanilla-next-auth/src/lib/next-auth.ts#L64-L87)
 - Doesn't handle backchannel logout (although it is relatively straightforward to implement): [Implemented here](./vanilla-next-auth/src/lib/next-auth.ts#L95-98)
+
 The Ugly:
 - next-auth is not really built to align itself to a single provider. next-auth maintains its own session that is not automatically aligned to any of your providers. next-auth's session refreshes anytime you hit one of the next-auth APIs, which ends up being pretty frequent. There are some workarounds, but you can end up in some states where you don't have a valid access_token, but next-auth still identifies you as "authenticated". In my opinion, next-auth really shines more in a situation where you need to support multiple providers.
 
@@ -47,10 +49,11 @@ The Good:
 - Handles refresh tokens and backchannel logouts out of the box
 - Can easily be extended to non-next.js apps
 - Abstracts the auth implementation from application developers - From the perspective of the upstream app, there is just an access token attached as a header.
-- This isn't 
+
 The Bad:
 - Customization is a bit lacking in comparison to next-auth when it comes to executing custom code & custom templates.
 - Networking setup is more complex as you have to run two apps for the setup to work properly
+
 The Ugly:
 - Compared to next-auth, there is not a client-side library to manage your session state (although it was easy enough to implement).  [Implementation here](./oauth2-proxy/src/app/page.tsx#L6-L13)
 - Unlike next-auth, oauth2-proxy does not currently support multiple providers out of the box.
@@ -71,13 +74,13 @@ The Caddy server is responsible for several things:
     a. When a request is made to `/private-page`, Caddy checks the user's authentication status using the `/api/is-authed` endpoint. If unauthenticated, Caddy redirects the user to login at `/api/login`. If authenticated, Caddy reverse proxies the route to your application, and forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L23-L31)
     b. When a request is made to any other page or route, Caddy checks the user's authentication status using the `/api/is-authed` endpoint. Caddy reverse proxies the route to your application, and if authenticated, forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L36-L45)
 
-
 > Note: You can accomplish something similar to Caddy's `forward_auth` with the [nginx module auth_request](https://nginx.org/en/docs/http/ngx_http_auth_request_module.html). In my limited experience, Caddy's implementation is more straightforward & flexible though.
 
 The Good:
 - This shares most of the good from the vanilla next-auth implementation
 - Relatively simple to add protected routes reverse proxied behind more services
 - Abstracts authentication away from applications. This would be valuable in a micro-frontend architecture, so that not every app is responsible for setting up and maintaining next-auth APIs
+
 The Bad:
 - This is a more complicated setup, however it is most likely to be beneficial to micro-service or micro-frontend setups which tend to be more complex as is. If you have a single app, it probably makes sense to go with one of the other approaches
 
