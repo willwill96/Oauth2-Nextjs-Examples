@@ -3,6 +3,6 @@ import NextAuth from "next-auth";
 
 const { handlers } = NextAuth(routesNextAuthConfig);
 
-const { GET, POST } = handlers
+const { GET, POST } = handlers;
 
 export { GET, POST };
