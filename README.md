@@ -11,6 +11,7 @@ In these examples I will be using a locally running [keycloak](https://www.keycl
 - `vanilla-next-auth/` - Example of a repo using next-auth as a library, mostly as documented from the [next-auth docs](https://next-auth.js.org/)    
 - `oauth2-proxy/` - Example of wrapping nextjs in [oauth2-proxy](https://github.com/oauth2-proxy/oauth2-proxy)
 - `next-auth-as-a-service/` - Example of hosting two nextjs apps behind a [Caddy](https://caddyserver.com/) reverse proxy. One serves the routes necessary for the auth.js implementation. The other serves all other routes. This is most useful in a microservice architecture
+- `roll-your-own/` - Similar to `next-auth-as-a-service`, but instead of using `next-auth` API routes, custom session logic is created where sessions are stored in a redis database - This implementation used the following for reference: https://github.com/lucia-auth/example-nextjs-github-oauth
 
 # Running Examples
 
@@ -84,3 +85,28 @@ The Good:
 The Bad:
 - This is a more complicated setup, however it is most likely to be beneficial to micro-service or micro-frontend setups which tend to be more complex as is. If you have a single app, it probably makes sense to go with one of the other approaches
 
+# Roll Your Own
+
+If neither next-auth nor oauth2 proxy suit your use cases you can roll your own auth.
+
+This example uses Caddy server to reverse proxy two nextjs apps behind the same domain:
+1. One app hosts the auth implementation, with necessary endpoints to support auth flows:
+    - `/api/auth/login` - an endpoint that can be navigated to initiate the authorization code flow: [Implementation here](./next-auth-as-a-service/auth_app/src/app/api/auth/login/route.ts)
+    - `/api/auth/login/callback` - callback url to complete the authorization code flow:  [Implementation here](./next-auth-as-a-service/auth_app/src/app/api/auth/login/callback/route.ts)
+    - `/api/auth/logout` - an endpoint to end your current session: [Implementation here](./next-auth-as-a-service/auth_app/src/app/api/auth/logout/route.ts)
+    - `/api/auth/session` - an endpoint to return information about your current session: [Implementation here](./next-auth-as-a-service/auth_app/src/app/api/auth/session/route.ts)
+    - `/api/auth/check` - an endpoint that will return either a 202 with an access token as an `X-Auth-Request-Access-Token` or a 401: [Implementation here](./next-auth-as-a-service/next-auth/src/app/api/auth/check/route.ts)
+2. The other app hosts the application itself - any pages or business logic unrelated to auth
+
+The Caddy server is responsible for several things:
+1. Reverse proxying any routes from the next-auth app behind `localhost:3000` - any routes that match `/api/auth/*`: [Implementation here](./roll-your-own/caddy/Caddyfile#L7-L11)
+2. Reverse proxying any other routes from the application server behind `localhost:3000`: [Implementation here](./roll-your-own/caddy/Caddyfile#L12-L43)
+3. Using the [forward_auth](https://caddyserver.com/docs/caddyfile/directives/forward_auth) Caddy directive to provide authentication gating and state to the upstream next.js app
+    a. When a request is made to `/private-page`, Caddy checks the user's authentication status using the `/api/auth/check` endpoint. If unauthenticated, Caddy redirects the user to login at `/api/auth/login`. If authenticated, Caddy reverse proxies the route to your application, and forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./roll-your-own/caddy/Caddyfile#L21-L31)
+    b. When a request is made to any other page or route, Caddy checks the user's authentication status using the `/api/auth/check` endpoint. Caddy reverse proxies the route to your application, and if authenticated, forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L36-L45)
+
+The Good:
+- Allows greater customization than either next-auth or oauth2-proxy
+
+The Bad:
+- Requires more work to cover lots of edge cases that next-auth & oauth2-proxy already handle.
