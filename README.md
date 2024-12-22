@@ -72,8 +72,9 @@ The Caddy server is responsible for several things:
 1. Reverse proxying any routes from the next-auth app behind `localhost:3000` - any routes that match `/api/login`, `/api/is-authed`, `/api/auth/*`: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L7-L15)
 2. Reverse proxying any other routes from the application server behind `localhost:3000`: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L18-L45)
 3. Using the [forward_auth](https://caddyserver.com/docs/caddyfile/directives/forward_auth) Caddy directive to provide authentication gating and state to the upstream next.js app
-    a. When a request is made to `/private-page`, Caddy checks the user's authentication status using the `/api/is-authed` endpoint. If unauthenticated, Caddy redirects the user to login at `/api/login`. If authenticated, Caddy reverse proxies the route to your application, and forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L23-L31)
     
+    a. When a request is made to `/private-page`, Caddy checks the user's authentication status using the `/api/is-authed` endpoint. If unauthenticated, Caddy redirects the user to login at `/api/login`. If authenticated, Caddy reverse proxies the route to your application, and forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L23-L31)
+
     b. When a request is made to any other page or route, Caddy checks the user's authentication status using the `/api/is-authed` endpoint. Caddy reverse proxies the route to your application, and if authenticated, forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./next-auth-as-a-service/caddy/Caddyfile#L36-L45)
 
 > Note: You can accomplish something similar to Caddy's `forward_auth` with the [nginx module auth_request](https://nginx.org/en/docs/http/ngx_http_auth_request_module.html). In my limited experience, Caddy's implementation is more straightforward & flexible though.
@@ -103,6 +104,7 @@ The Caddy server is responsible for several things:
 1. Reverse proxying any routes from the next-auth app behind `localhost:3000` - any routes that match `/api/auth/*`: [Implementation here](./roll-your-own/caddy/Caddyfile#L7-L11)
 2. Reverse proxying any other routes from the application server behind `localhost:3000`: [Implementation here](./roll-your-own/caddy/Caddyfile#L12-L43)
 3. Using the [forward_auth](https://caddyserver.com/docs/caddyfile/directives/forward_auth) Caddy directive to provide authentication gating and state to the upstream next.js app
+    
     a. When a request is made to `/private-page`, Caddy checks the user's authentication status using the `/api/auth/check` endpoint. If unauthenticated, Caddy redirects the user to login at `/api/auth/login`. If authenticated, Caddy reverse proxies the route to your application, and forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./roll-your-own/caddy/Caddyfile#L21-L31)
 
     b. When a request is made to any other page or route, Caddy checks the user's authentication status using the `/api/auth/check` endpoint. Caddy reverse proxies the route to your application, and if authenticated, forwards the `X-Auth-Request-Access-Token` header: [Implementation here](./roll-your-own/caddy/Caddyfile#L36-L45)
