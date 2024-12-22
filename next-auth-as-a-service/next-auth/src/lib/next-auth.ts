@@ -14,6 +14,8 @@ declare module "next-auth" {
 	}
 }
 
+
+
 const isJwtExpired = (accessToken: { exp: number }) => {
 	// Buffer expiration by 1 minute
 	return Date.now() + 1000 * 60 > accessToken.exp * 1000;
@@ -69,15 +71,15 @@ const baseOptions = {
 					token.access_token as string,
 				);
 				if (isJwtExpired(decodedRefreshToken)) {
-					console.debug("Refresh Token Expired");
+                    console.debug('Refresh Token Expired')
 					return {};
 				}
 				if (isJwtExpired(decodedAccessToken)) {
-					console.debug("Access Token Expired");
+                    console.debug('Access Token Expired')
 					const refreshedTokens = await refreshAccessToken(
 						token.refresh_token as string,
 					);
-					console.debug("Tokens Refreshed", refreshedTokens);
+                    console.debug('Tokens Refreshed', refreshedTokens)
 					return {
 						...token,
 						id_token: refreshedTokens.id_token,

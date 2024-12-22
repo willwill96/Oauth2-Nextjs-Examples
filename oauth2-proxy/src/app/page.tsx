@@ -11,7 +11,6 @@ export default function Home() {
 		},
 		refetchInterval: 1000 * 60 * 4,
 	});
-	console.log("data", data);
 
 	if (isError) return <div>Something went wrong</div>;
 	if (!data) return null;

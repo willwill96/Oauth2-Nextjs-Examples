@@ -3,7 +3,6 @@
 }
 
 :3000 {
-    
     # All auth-related routes should go to the next-auth app
     handle /api/auth/* {
         reverse_proxy http://host.docker.internal:3002
