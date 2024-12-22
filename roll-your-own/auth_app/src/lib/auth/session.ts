@@ -128,10 +128,9 @@ export async function getSession(): Promise<null | BackendSessionWithId> {
     }
     const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(sessionToken?.value)));
     const session = await client.hGetAll(`session:${sessionId}`) as unknown as BackendSession
-    console.log('expiry date', session.access_token_expiry*1000)
+
     // Buffer by 1 minute
     if (Date.now() > session.access_token_expiry*1000 - 1000*60) {
-        console.log('refresh token logic')
         return await refreshTokens(session, sessionToken?.value, sessionId)
     }
 
