@@ -10,9 +10,9 @@ export default function Home() {
 		},
 		refetchInterval: 1000 * 60 * 4,
 	});
-	const {status} = data || {}
-	if (isError) return <div>Something went wrong</div>
-	if (!data) return null
+	const { status } = data || {};
+	if (isError) return <div>Something went wrong</div>;
+	if (!data) return null;
 	return (
 		<div className="grid bg-gray-500 items-start justify-items-center min-h-screen p-8 pb-20 gap-4 sm:p-20 font-[family-name:var(--font-geist-sans)]">
 			<div className="flex flex-col items-center w-full h-full justify-items-center gap-4">
@@ -24,7 +24,9 @@ export default function Home() {
 
 				<a
 					className="border-2 border-orange-500 hover:bg-orange-400 hover:bg-opacity-50 text-gray-200 text-lg  p-2 rounded-sm"
-					href={status === 'authenticated' ? "/api/auth/logout" : "/api/auth/login"}
+					href={
+						status === "authenticated" ? "/api/auth/logout" : "/api/auth/login"
+					}
 				>
 					{status === "authenticated" ? "Sign Out" : "Sign In"}
 				</a>
