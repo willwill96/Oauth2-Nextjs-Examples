@@ -3,6 +3,8 @@ Repo of examples integrating nextjs apps with an Oauth2 provider using the [Auth
 
 In these examples I will be using a locally running [keycloak](https://www.keycloak.org/) instance, but these approaches should work for most Oauth2 providers.
 
+> Note: I did my best to ensure security standards are followed in each of these examples, but I do NOT make any guarantees. Do your own due diligence before deploying anything to production.
+
 # Folder Structure
 
 - `keycloak/` - All information relevant to the keycloak docker image used in each of the examples. Things of note:
